@@ -137,7 +137,45 @@ actualizarContador();
           </h2>
 
         </div>
+<div className="mb-16 text-center">
 
+  <p className="text-[#7b6657] mb-6 max-w-2xl mx-auto">
+    También nos ayudarían mucho algunos de estos regalos
+    que pueden conseguirse en cualquier tienda.
+  </p>
+
+  <div className="flex flex-wrap justify-center gap-3">
+
+    {[
+      "Tuppers de vidrio",
+      "Juego de toalla y toallón",
+      "Lámpara de Pie",
+      "Juego de cama QUEEN",
+      "Tablas",
+      "Alfombra de Baño",
+      "Organizadores",
+      "Fuentes para horno",
+      "Almohadas",
+      "Especiero",
+      "Juego de sábanas TWIN",
+      "Bateria de Cocina",
+      "Cubiertos",
+      "Mantel",
+    ].map((item) => (
+      <span
+        key={item}
+        className="bg-white border border-[#e5d5c9] px-5 py-3 rounded-full text-[#6b5548] shadow-sm"
+      >
+        {item}
+      </span>
+    ))}
+
+  </div>
+
+</div>
+<p className="text-center text-[#7b6657] mt-10 mb-12">
+  O, si lo preferís, acá te dejamos algunos regalos que nos gustaron especialmente.
+</p>
         <div className="grid md:grid-cols-3 gap-8">
 
           {productos.map((producto) => (
@@ -223,7 +261,7 @@ actualizarContador();
           </h2>
 
           <p className="text-lg text-gray-700 leading-relaxed mb-10">
-            Si quisieras ayudarnos con tu aporte económico,
+            Si preferis ayudarnos con tu aporte económico,
             te dejamos acá los datos para colaborar con
             nuestro futuro hogar.
           </p>
