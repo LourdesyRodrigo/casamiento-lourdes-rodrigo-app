@@ -1,336 +1,295 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { db } from "./firebase";
 import {
   collection,
-  getDocs,
-  updateDoc,
+  onSnapshot,
   doc,
+  updateDoc,
 } from "firebase/firestore";
 
-export default function WeddingRegistryApp() {
-  const categories = [
-    "Cocina",
-    "Electrodomésticos",
-    "Dormitorio",
-    "Baño",
-    "Organización",
-    "Patio",
-    "Gustos",
-  ];
-const [loading, setLoading] = useState(true);
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      title: "Juego de Vajilla",
-      store: "Tiendas Vesta",
-      address: "Av. Rafael Núñez 4252, Córdoba",
-      image:
-        "https://images.unsplash.com/photo-1516685018646-549d52e3f1d3?q=80&w=1200&auto=format&fit=crop",
-      link: "https://www.mercadolibre.com.ar/",
-      purchased: true,
-      purchasedBy: "Familia Pérez",
-      category: "Cocina",
-    },
-    {
-      id: 2,
-      title: "Cafetera",
-      store: "Mercado Libre",
-      address: "Compra online",
-      image:
-        "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=1200&auto=format&fit=crop",
-      link: "https://www.mercadolibre.com.ar/",
-      purchased: false,
-      purchasedBy: null,
-      category: "Electrodomésticos",
-    },
-    {
-      id: 3,
-      title: "Juego de Sábanas",
-      store: "Blanco Store",
-      address: "Villa Allende Shopping, Córdoba",
-      image:
-        "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1200&auto=format&fit=crop",
-      link: "https://www.mercadolibre.com.ar/",
-      purchased: false,
-      purchasedBy: null,
-      category: "Dormitorio",
-    },
-  ]);
-useEffect(() => {
-  const loadProducts = async () => {
-    try {
-      const querySnapshot = await getDocs(collection(db, "products"));
+import { db } from "./firebase";
 
-      if (!querySnapshot.empty) {
-        const firebaseProducts = querySnapshot.docs.map((doc) => ({
+interface Product {
+  id: string;
+  title: string;
+  store: string;
+  link: string;
+  image?: string;
+  purchased?: boolean;
+}
+
+export default function WeddingRegistryApp() {
+const copiarTexto = (texto: string) => {
+  navigator.clipboard.writeText(texto);
+  alert("Alias copiado");
+};
+
+const marcarComprado = async (id: string) => {
+  const confirmar = window.confirm(
+    "¿Confirmás que ya compraste este regalo?"
+  );
+
+  if (!confirmar) return;
+
+  await updateDoc(doc(db, "products", id), {
+    purchased: true,
+  });
+};
+  
+  const [productos, setProductos] = useState<Product[]>([]);
+  const [diasRestantes, setDiasRestantes] = useState(0);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      collection(db, "products"),
+      (snapshot) => {
+        const data = snapshot.docs.map((doc) => ({
           id: doc.id,
-          ...doc.data(),
+          ...(doc.data() as Omit<Product, "id">),
         }));
 
-        setProducts(firebaseProducts as any);
+        setProductos(data);
       }
-    } catch (error) {
-      console.log(error);
-    }
-
-    setLoading(false);
-  };
-
-  loadProducts();
-}, []);
-const markAsPurchased = async (id: string) => {
-  try {
-    await updateDoc(doc(db, "products", id), {
-      purchased: true,
-      purchasedBy: "Reservado",
-    });
-
-    setProducts((prev: any) =>
-      prev.map((product: any) =>
-        product.id === id
-          ? {
-              ...product,
-              purchased: true,
-              purchasedBy: "Reservado",
-            }
-          : product
-      )
     );
-  } catch (error) {
-    console.log(error);
-  }
+const fechaCasamiento = new Date(2026, 11, 19);
+
+const actualizarContador = () => {
+  const hoy = new Date();
+  const diferencia = fechaCasamiento.getTime() - hoy.getTime();
+  const dias = Math.max(
+  0,
+  Math.ceil(diferencia / (1000 * 60 * 60 * 24))
+);
+  setDiasRestantes(dias);
 };
-if (loading) {
-  return (
-    <div className="min-h-screen flex items-center justify-center text-2xl">
-      Cargando lista...
-    </div>
-  );
-}
-  return (
-    <div className="min-h-screen bg-[#f7f1ea] text-[#4f3c33]">
-      <section className="relative overflow-hidden px-6 py-20 text-center">
-        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,#d8c2ae,transparent_60%)]" />
 
-        <div className="relative z-10 max-w-5xl mx-auto">
-          <p className="uppercase tracking-[0.35em] text-sm mb-4 text-[#8c6f5d]">
-            19 de diciembre de 2026 • Córdoba, Argentina
+actualizarContador();
+    return () => unsubscribe();
+  }, []);
+
+  return (
+    <main className="bg-[#f8f2ed] min-h-screen">
+
+      {/* HERO */}
+
+      <section className="relative h-screen w-full overflow-hidden">
+
+        <img
+          src="/hero.jpg"
+          alt="Lourdes y Rodrigo"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+
+        <div className="absolute inset-0 bg-black/40" />
+
+        <div className="relative z-10 flex h-full flex-col items-center justify-center text-white text-center px-6">
+
+          <p className="uppercase tracking-[0.4em] text-sm mb-6">
+            19 · Diciembre · 2026
           </p>
 
-          <h1 className="text-5xl md:text-7xl font-serif leading-tight mb-6">
-            Lourdes & Rodrigo
-          </h1>
+          <h1 className="font-serif text-6xl md:text-8xl mb-4">
+  Lourdes & Rodrigo
+</h1>
 
-          <div className="w-24 h-[1px] bg-[#b79d8b] mx-auto mb-8" />
+<p className="max-w-2xl text-lg md:text-xl mt-4 leading-relaxed">
+  Estamos muy felices de compartir con ustedes este momento tan especial.
+  Gracias por acompañarnos y ayudarnos a construir nuestro futuro hogar.
+</p>
 
-          <p className="text-lg md:text-xl leading-relaxed max-w-3xl mx-auto text-[#6b5548]">
-            Lo más importante para nosotros es compartir este momento con
-            ustedes. No hace falta ningún regalo, pero si desean ayudarnos a
-            construir nuestro hogar, armamos esta lista.
-          </p>
+<div className="mt-8">
+  <p className="text-sm uppercase tracking-[0.3em] mb-2">
+    Faltan
+  </p>
 
-          <div className="mt-10 mb-12">
-            <div className="inline-flex flex-col items-center rounded-[30px] bg-white/70 backdrop-blur border border-[#e5d3c7] px-10 py-6 shadow-sm">
-              <p className="uppercase tracking-[0.3em] text-xs text-[#a08372] mb-3">
-                Faltan
-              </p>
-
-              <div className="flex items-center gap-6 text-center">
-                <div>
-                  <p className="text-4xl font-serif">214</p>
-                  <span className="text-xs uppercase tracking-widest text-[#9a7d6b]">
-                    días
-                  </span>
-                </div>
-
-                <div>
-                  <p className="text-4xl font-serif">7</p>
-                  <span className="text-xs uppercase tracking-widest text-[#9a7d6b]">
-                    meses
-                  </span>
-                </div>
-
-                <div>
-                  <p className="text-4xl font-serif">30</p>
-                  <span className="text-xs uppercase tracking-widest text-[#9a7d6b]">
-                    semanas
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-12 flex flex-wrap justify-center gap-4">
-            {categories.map((category) => (
-              <div
-                key={category}
-                className="rounded-full border border-[#d8c2b3] bg-white/70 backdrop-blur px-5 py-3 text-sm tracking-wide shadow-sm"
-              >
-                {category}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="px-6 pb-24">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
-          {products.map((product) => (
-            <div
-              key={product.id}
-              className="overflow-hidden rounded-[32px] bg-white shadow-xl shadow-[#dccabd40] border border-[#ead7ca]"
-            >
-              <img
-                src={product.image}
-                alt={product.title}
-                className="h-80 w-full object-cover"
-              />
-
-              <div className="p-7">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="rounded-full bg-[#f5ebe3] px-4 py-2 text-xs uppercase tracking-[0.2em] text-[#8d6d5b]">
-                    {product.category}
-                  </span>
-
-                  {product.purchased ? (
-                    <span className="text-green-700 text-sm font-medium">
-                      Comprado ✓
-                    </span>
-                  ) : (
-                    <span className="text-[#a08372] text-sm">
-                      Disponible
-                    </span>
-                  )}
-                </div>
-
-                <h3 className="text-3xl font-serif mb-3">
-                  {product.title}
-                </h3>
-
-                <div className="text-sm text-[#7b6659] mb-5 space-y-1">
-                  <p className="font-medium">
-                    {product.store}
-                  </p>
-
-                  <p>
-                    {product.address}
-                  </p>
-                </div>
-
-                {product.purchasedBy && (
-                  <div className="mb-5 rounded-2xl bg-[#f6efe9] border border-[#ead7ca] px-4 py-3 text-sm text-[#6b5548]">
-                    Comprado por {product.purchasedBy}
-                  </div>
-                )}
-
-                <div className="flex gap-3">
-                  <a
-                    href={product.link}
-                    target="_blank"
-                    className="flex-1 rounded-2xl bg-[#8f715f] hover:bg-[#7b6051] transition-all text-white py-4 text-center text-sm tracking-wide"
-                  >
-                    Ver producto
-                  </a>
-
-                  <button
-  disabled={product.purchased}
-  onClick={() => markAsPurchased(String(product.id))}
-  className={`flex-1 rounded-2xl py-4 text-sm tracking-wide transition-all ${
-    product.purchased
-      ? "bg-green-700 text-white cursor-not-allowed"
-      : "border border-[#d8c2b3] hover:bg-[#f6efe9]"
-  }`}
->
-  {product.purchased
-    ? "Ya fue comprado ✓"
-    : "Ya lo compré"}
-</button>
+  <p className="text-5xl font-serif">
+    {diasRestantes} días
+  </p>
 </div>
-              </div>
-            </div>
-          ))}
+
+          <a
+            href="#regalos"
+            className="mt-8 border border-white px-8 py-3 rounded-full hover:bg-white hover:text-black transition"
+          >
+            Ver lista
+          </a>
+
         </div>
+
       </section>
 
-      <section className="px-6 pb-24">
-        <div className="max-w-4xl mx-auto rounded-[40px] bg-white border border-[#ead7ca] p-10 shadow-xl shadow-[#d9c7ba40]">
+      {/* LISTA */}
+
+      <section
+        id="regalos"
+        className="max-w-6xl mx-auto px-6 py-24"
+      >
+
+        <div className="text-center mb-16">
+
+          <p className="uppercase tracking-[0.3em] text-xs text-[#a08372] mb-3">
+            Lista de regalos
+          </p>
+
+          <h2 className="text-5xl font-serif text-[#4b3425]">
+            Nuestro futuro hogar
+          </h2>
+
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-8">
+
+          {productos.map((producto) => (
+
+            <div
+              key={producto.id}
+              className="bg-white rounded-[30px] overflow-hidden shadow-sm"
+            >
+
+              {producto.image && (
+  <img
+    src={producto.image}
+    alt={producto.title}
+    className="w-full h-[300px] object-contain bg-[#f8f2ed]"
+  />
+)}
+
+              <div className="p-6">
+
+                <p className="text-sm uppercase tracking-[0.2em] text-[#b89b88] mb-2">
+                  {producto.store}
+                </p>
+
+                <h3 className="text-2xl font-serif text-[#4b3425] mb-4">
+  {producto.title}
+</h3>
+
+{producto.purchased && (
+  <div className="mb-4 inline-block bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium">
+    ✓ Comprado
+  </div>
+)}
+
+                {!producto.purchased ? (
+  <div className="space-y-3">
+
+    <a
+      href={producto.link}
+      target="_blank"
+      className="block w-full text-center bg-[#a08372] hover:bg-[#8d715f] text-white py-3 rounded-full transition"
+    >
+      Ver producto
+    </a>
+
+    <button
+      onClick={() =>
+        marcarComprado(producto.id)
+      }
+      className="w-full border border-[#a08372] text-[#a08372] py-3 rounded-full hover:bg-[#f3ebe6] transition"
+    >
+      Ya compré este regalo
+    </button>
+
+  </div>
+) : (
+  <div className="w-full text-center bg-green-100 text-green-700 py-3 rounded-full font-medium">
+    ✓ Comprado
+  </div>
+)}
+
+              </div>
+
+            </div>
+
+          ))}
+
+        </div>
+
+      </section>
+
+      {/* APORTE ECONÓMICO */}
+
+      <section className="max-w-4xl mx-auto px-6 pb-24">
+
+        <div className="bg-white rounded-[30px] p-10 shadow-sm text-center">
+
           <p className="uppercase tracking-[0.3em] text-xs text-[#a08372] mb-3">
             Aporte económico
           </p>
 
-          <h3 className="text-4xl font-serif mb-6">
-            Nuestro futuro hogar
-          </h3>
-
-          <p className="text-[#6b5548] leading-relaxed mb-8">
-            Si preferís hacernos un regalo de otra forma, te dejamos nuestros
-            datos para colaborar con nuestro futuro hogar y nuevos proyectos.
-          </p>
-
-          <div className="grid md:grid-cols-2 gap-5">
-            <div className="rounded-2xl bg-[#f8f2ed] p-5 border border-[#ead7ca]">
-              <p className="uppercase text-xs tracking-[0.25em] text-[#a08372] mb-2">
-                Alias en pesos
-              </p>
-
-              <p className="text-xl">
-                LOURDESYRODRI.CASA
-              </p>
-            </div>
-
-            <div className="rounded-2xl bg-[#f8f2ed] p-5 border border-[#ead7ca]">
-              <p className="uppercase text-xs tracking-[0.25em] text-[#a08372] mb-2">
-                Alias USD
-              </p>
-
-              <p className="text-xl">
-                LOURDESYRODRI.USD
-              </p>
-            </div>
-
-            <div className="rounded-2xl bg-[#f8f2ed] p-5 border border-[#ead7ca]">
-              <p className="uppercase text-xs tracking-[0.25em] text-[#a08372] mb-2">
-                Titular
-              </p>
-
-              <p className="text-xl">
-                Lourdes Actis
-              </p>
-            </div>
-
-            <div className="rounded-2xl bg-[#f8f2ed] p-5 border border-[#ead7ca]">
-              <p className="uppercase text-xs tracking-[0.25em] text-[#a08372] mb-2">
-                Banco
-              </p>
-
-              <p className="text-xl">
-                Banco Galicia
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="px-6 pb-24">
-        <div className="max-w-4xl mx-auto rounded-[40px] bg-white border border-[#ead7ca] p-10 text-center shadow-xl shadow-[#d9c7ba40]">
-          <h3 className="text-4xl font-serif mb-6">
+          <h2 className="text-4xl font-serif text-[#4b3425] mb-8">
             Gracias por acompañarnos
-          </h3>
+          </h2>
 
-          <p className="text-lg leading-relaxed text-[#6b5548] max-w-2xl mx-auto">
-            Cada detalle suma muchísimo a esta etapa nueva que estamos
-            construyendo juntos ¡Gracias por ser parte y ayudarnos a construir nuestro hogar!
+          <p className="text-lg text-gray-700 leading-relaxed mb-10">
+            Si quisieras ayudarnos con tu aporte económico,
+            te dejamos acá los datos para colaborar con
+            nuestro futuro hogar.
           </p>
 
-          <div className="mt-10 flex flex-wrap justify-center gap-6 text-sm uppercase tracking-[0.2em] text-[#9a7d6b]">
-            <span>19 de diciembre de 2026</span>
-            <span>•</span>
-            <span>Córdoba, Argentina</span>
+          <div className="grid md:grid-cols-2 gap-8 text-left">
+
+            <div className="bg-[#f8f2ed] rounded-2xl p-6">
+              <h3 className="font-serif text-2xl text-[#4b3425] mb-4">
+                Cuenta en pesos
+              </h3>
+
+              <div>
+  <p className="mb-3">
+    <strong>Alias:</strong> RODRIYLU2025
+  </p>
+
+  <button
+    onClick={() => copiarTexto("RODRIYLU2025")}
+    className="bg-[#a08372] hover:bg-[#8d715f] text-white px-4 py-2 rounded-full transition"
+  >
+    Copiar alias
+  </button>
+</div>
+
+              <p className="mt-2">
+                <strong>Banco:</strong> UALA
+              </p>
+
+              <p className="mt-2">
+                <strong>Titular:</strong> MARIA LOURDES ACTIS
+              </p>
+            </div>
+
+            <div className="bg-[#f8f2ed] rounded-2xl p-6">
+              <h3 className="font-serif text-2xl text-[#4b3425] mb-4">
+                Cuenta en dólares
+              </h3>
+
+              <div>
+  <p className="mb-3">
+    <strong>Alias:</strong> CAJA.CESTA.COSA
+  </p>
+
+  <button
+    onClick={() => copiarTexto("CAJA.CESTA.COSA")}
+    className="bg-[#a08372] hover:bg-[#8d715f] text-white px-4 py-2 rounded-full transition"
+  >
+    Copiar alias
+  </button>
+</div>
+
+              <p className="mt-2">
+                <strong>Banco:</strong> BANCO MACRO
+              </p>
+
+              <p className="mt-2">
+                <strong>Titular:</strong> MARIA LOURDES ACTIS
+              </p>
+            </div>
+
           </div>
+
         </div>
+
       </section>
-    </div>
+
+    </main>
   );
 }

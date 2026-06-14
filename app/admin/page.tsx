@@ -168,7 +168,22 @@ export default function AdminPage() {
 
     showSuccess("Producto actualizado ✨");
   };
+const togglePurchased = async (
+  id: string,
+  currentValue: boolean
+) => {
+  await updateDoc(doc(db, "products", id), {
+    purchased: !currentValue,
+  });
 
+  await loadProducts();
+
+  showSuccess(
+    !currentValue
+      ? "Producto marcado como comprado"
+      : "Producto vuelto a disponible"
+  );
+};
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#f7f1ea]">
@@ -376,7 +391,7 @@ export default function AdminPage() {
                           <img
                             src={editImage}
                             alt="preview"
-                            className="w-full h-40 object-cover rounded-2xl"
+                            className="w-full h-40 object-contain bg-[#f8f2ed] rounded-2xl"
                           />
                         )}
 
@@ -391,43 +406,71 @@ export default function AdminPage() {
                       <div className="space-y-4">
                         {product.image && (
                           <img
-                            src={product.image}
-                            alt={product.title}
-                            className="w-full h-44 object-cover rounded-2xl"
-                          />
+  src={product.image}
+  alt={product.title}
+  className="w-full h-44 object-contain bg-[#f8f2ed] rounded-2xl"
+/>
                         )}
 
                         <div>
-                          <h3 className="font-semibold text-xl text-[#4f3c33]">
-                            {product.title}
-                          </h3>
+  <h3 className="font-semibold text-xl text-[#4f3c33]">
+    {product.title}
+  </h3>
 
-                          <p className="text-sm text-[#8a6f5e]">
-                            {product.store}
-                          </p>
-                        </div>
+  <p className="text-sm text-[#8a6f5e]">
+    {product.store}
+  </p>
+
+  {product.purchased ? (
+    <div className="mt-3 inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
+      ✓ Comprado
+    </div>
+  ) : (
+    <div className="mt-3 inline-block bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
+      Disponible
+    </div>
+  )}
+</div>
 
                         <div className="flex gap-3">
-                          <button
-                            onClick={() =>
-                              startEdit(product)
-                            }
-                            className="flex-1 bg-[#8f715f] text-white py-3 rounded-2xl"
-                          >
-                            Editar
-                          </button>
 
-                          <button
-                            onClick={() =>
-                              deleteProduct(
-                                String(product.id)
-                              )
-                            }
-                            className="flex-1 bg-red-500 text-white py-3 rounded-2xl"
-                          >
-                            Eliminar
-                          </button>
-                        </div>
+  <button
+    onClick={() => startEdit(product)}
+    className="flex-1 bg-[#8f715f] text-white py-3 rounded-2xl"
+  >
+    Editar
+  </button>
+
+  <button
+    onClick={() =>
+      togglePurchased(
+        String(product.id),
+        !!product.purchased
+      )
+    }
+    className={`flex-1 text-white py-3 rounded-2xl ${
+      product.purchased
+        ? "bg-orange-500"
+        : "bg-green-600"
+    }`}
+  >
+    {product.purchased
+      ? "Volver disponible"
+      : "Marcar comprado"}
+  </button>
+
+  <button
+    onClick={() =>
+      deleteProduct(
+        String(product.id)
+      )
+    }
+    className="flex-1 bg-red-500 text-white py-3 rounded-2xl"
+  >
+    Eliminar
+  </button>
+
+</div>
                       </div>
                     )}
                   </div>
