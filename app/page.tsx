@@ -140,8 +140,7 @@ actualizarContador();
 <div className="mb-16 text-center">
 
   <p className="text-[#7b6657] mb-6 max-w-2xl mx-auto">
-    También nos ayudarían mucho algunos de estos regalos
-    que pueden conseguirse en cualquier tienda.
+    Estos regalos que pueden conseguirse en cualquier tienda nos ayudarían mucho.
   </p>
 
   <div className="flex flex-wrap justify-center gap-3">
