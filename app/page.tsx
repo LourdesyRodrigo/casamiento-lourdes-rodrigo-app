@@ -294,7 +294,7 @@ actualizarContador();
               </p>
             </div>
 
-            <div className="bg-[#f8f2ed] rounded-2xl p-6">
+            <div className="bg-[#f8f2ed] rounded-2xl p-6 text-[#4b3425]">
               <h3 className="font-serif text-2xl text-[#4b3425] mb-4">
                 Cuenta en dólares
               </h3>
